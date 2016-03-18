@@ -2,8 +2,7 @@ import urllib.request
 import urllib.parse
 import re
 import xml.etree.ElementTree as ET
-import util.xmltodict
-
+import app.util.xmltodict
 
 class OPACWrapper(object):
     username = 'GUEST'

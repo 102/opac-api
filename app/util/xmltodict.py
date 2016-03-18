@@ -2,8 +2,8 @@ import xml.etree.ElementTree as ElementTree
 
 
 class XmlListConfig(list):
-    def __init__(self, aList):
-        for element in aList:
+    def __init__(self, a_list):
+        for element in a_list:
             if element:
                 # treat like dict
                 if len(element) == 1 or element[0].tag != element[1].tag:
