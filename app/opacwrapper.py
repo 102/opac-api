@@ -7,6 +7,8 @@ from functools import reduce
 
 
 class OPACWrapper(object):
+    DEFAULT_LENGTH = 10
+
     username = 'GUEST'
     password = 'GUESTE'
     type_access = 'PayAccess'
@@ -28,7 +30,7 @@ class OPACWrapper(object):
                 if not line.find('numsean') == -1:
                     self.session_id = re.findall(r'"([^"]*)"', line)[0]
 
-    def get_book_list_by_author(self, author_name, length='10'):
+    def get_book_list_by_author(self, author_name, length=DEFAULT_LENGTH):
         """
         :param author_name: name of the author to be searched
         :param length: maximum length of returned books list
