@@ -2,7 +2,9 @@ import urllib.request
 import urllib.parse
 import re
 import xml.etree.ElementTree as ET
-import app.util.xmltodict
+from app.util.xmltodict import XmlListConfig
+from functools import reduce
+
 
 class OPACWrapper(object):
     username = 'GUEST'
@@ -15,6 +17,9 @@ class OPACWrapper(object):
     session_id = '-1'
 
     def __init__(self):
+        """
+        constructor used to get session_id from opac
+        """
         params = urllib.parse.urlencode({'arg0': self.username, 'arg1': self.password, 'TypeAccess': self.type_access})
         url = self.OPAC_INIT_URL + ('?%s' % params)
         with urllib.request.urlopen(url) as f:
@@ -24,6 +29,12 @@ class OPACWrapper(object):
                     self.session_id = re.findall(r'"([^"]*)"', line)[0]
 
     def get_book_list_by_author(self, author_name, length='10'):
+        """
+        :param author_name: name of the author to be searched
+        :param length: maximum length of returned books list
+        :return: length, books: tuple, where first element is total amount of books, which can be found with this query
+                                             second element is list of books
+        """
         data = urllib.parse.urlencode({'_errorXsl': '/opacg/html/common/xsl/error.xsl',
                                        '_wait:6M': '_xsl:/opacg/html/search/xsl/search_results.xsl',
                                        '_version': '2.5.0', '_service': 'STORAGE:opacfindd:FindView',
@@ -37,6 +48,8 @@ class OPACWrapper(object):
             response = f.read().decode('utf-8')
             tree = ET.ElementTree(ET.fromstring(response))
             root = tree.getroot()
-            books = map(lambda i: i['SHOTFORM']['content']['entry'], util.xmltodict.XmlListConfig(root)[0])
+            size = reduce(lambda a, b: a + (b[1] if b[0] == 'size' else ''), root.items(), '')
 
-            return list(books)
+            books = map(lambda i: i['SHOTFORM']['content']['entry'], XmlListConfig(root)[0]) if not size == '0' else []
+
+            return size, list(books)
