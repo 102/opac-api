@@ -1,5 +1,5 @@
 import unittest
-from app.opacwrapper import OPACWrapper
+from opacwrapper import OPACWrapper
 
 opac = OPACWrapper()
 

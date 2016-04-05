@@ -1,4 +1,4 @@
-from app.opacwrapper import OPACWrapper
+from opacwrapper import OPACWrapper
 import argparse
 
 parser = argparse.ArgumentParser()

@@ -1,8 +1,9 @@
-import urllib.request
 import urllib.parse
-import re
+import urllib.request
 import xml.etree.ElementTree as ET
-from app.util.xmltodict import XmlListConfig
+
+import re
+from xmltodict import XmlListConfig
 from functools import reduce
 
 
