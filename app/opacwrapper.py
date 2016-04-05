@@ -7,6 +7,10 @@ from xmltodict import XmlListConfig
 from functools import reduce
 
 
+class OPACConnectionException(Exception):
+    pass
+
+
 class OPACWrapper(object):
     DEFAULT_LENGTH = 10
 
@@ -20,13 +24,20 @@ class OPACWrapper(object):
     session_id = '-1'
 
     def __init__(self):
-        """
-        constructor used to get session_id from opac
-        """
+        # trying to get session_id from opac
         params = urllib.parse.urlencode({'arg0': self.username, 'arg1': self.password, 'TypeAccess': self.type_access})
-        url = self.OPAC_INIT_URL + ('?%s' % params)
+        url = self.OPAC_INIT_URL + '?{0}'.format((params,))
         with urllib.request.urlopen(url) as f:
-            response = f.read().decode('utf-8').split('\r\n')
+            response = False
+            for i in range(1, 3):
+                try:
+                    response = f.read().decode('utf-8').split('\r\n')
+                    break
+                except UnicodeDecodeError:
+                    pass
+            if not response:
+                raise OPACConnectionException
+
             for line in response:
                 if not line.find('numsean') == -1:
                     self.session_id = re.findall(r'"([^"]*)"', line)[0]
