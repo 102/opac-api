@@ -7,4 +7,10 @@ parser.add_argument('-m', '--amount', help='Amount of books in result', default=
 args = parser.parse_args()
 
 opac = OPACWrapper()
-print(opac.get_book_list_by_author(args.author, args.amount))
+amount, books = opac.get_book_list_by_author(args.author, args.amount)
+print('Total amount of books:', amount)
+print('-------------------------')
+counter = 1
+for book in books:
+    print('{0}: {1}'.format(counter, book))
+    counter += 1
