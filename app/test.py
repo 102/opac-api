@@ -21,5 +21,9 @@ class TestOPACWrapper(unittest.TestCase):
         total, books = opac.get_book_list_by_author('Пушкин')
         self.assertEqual(len(books), opac.DEFAULT_LENGTH)
 
+    def test_one_book(self):
+        total, books = opac.get_book_list_by_author('Пушкин', length=1)
+        self.assertEqual(len(books), 1)
+
 if __name__ == '__main__':
     unittest.main()

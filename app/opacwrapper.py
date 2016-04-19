@@ -49,6 +49,10 @@ class OPACWrapper(object):
         :return: length, books: tuple, where first element is total amount of books, which can be found with this query
                                              second element is list of books
         """
+        fake_len = False
+        if length == '1':
+            fake_len, length = True, 2
+
         data = urllib.parse.urlencode({'_errorXsl': '/opacg/html/common/xsl/error.xsl',
                                        '_wait:6M': '_xsl:/opacg/html/search/xsl/search_results.xsl',
                                        '_version': '2.5.0', '_service': 'STORAGE:opacfindd:FindView',
@@ -65,5 +69,8 @@ class OPACWrapper(object):
             size = reduce(lambda a, b: a + (b[1] if b[0] == 'size' else ''), root.items(), '')
 
             books = map(lambda i: i['SHOTFORM']['content']['entry'], XmlListConfig(root)[0]) if not size == '0' else []
+
+            if fake_len:
+                books = list((list(books)[0],))
 
             return size, list(books)
