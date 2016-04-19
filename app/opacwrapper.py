@@ -29,6 +29,8 @@ class OPACWrapper(object):
         url = self.OPAC_INIT_URL + '?{0}'.format((params,))
         with urllib.request.urlopen(url) as f:
             response = False
+
+            # trying to connect three times since opac sometimes fails to send a response
             for i in range(1, 3):
                 try:
                     response = f.read().decode('utf-8').split('\r\n')
@@ -42,22 +44,23 @@ class OPACWrapper(object):
                 if not line.find('numsean') == -1:
                     self.session_id = re.findall(r'"([^"]*)"', line)[0]
 
-    def get_book_list_by_author(self, author_name, length=DEFAULT_LENGTH):
+    def get_book_list_by_author(self, author_name, length=DEFAULT_LENGTH, offset=0):
         """
         :param author_name: name of the author to be searched
         :param length: maximum length of returned books list
+        :param offset: books offset length
         :return: length, books: tuple, where first element is total amount of books, which can be found with this query
                                              second element is list of books
         """
         fake_len = False
-        if length == '1':
+        if length == 1 or length == '1':
             fake_len, length = True, 2
 
         data = urllib.parse.urlencode({'_errorXsl': '/opacg/html/common/xsl/error.xsl',
                                        '_wait:6M': '_xsl:/opacg/html/search/xsl/search_results.xsl',
                                        '_version': '2.5.0', '_service': 'STORAGE:opacfindd:FindView',
                                        'outformList[0]/outform': 'SHOTFORM', 'outformList[1]/outform': 'LINEORD',
-                                       'length': length, 'query/body': '(AU {0})'.format(author_name),
+                                       'length': length, 'start': offset, 'query/body': '(AU {0})'.format(author_name),
                                        'query/open': "{NC:<span class='red_text'>}", 'query/close': '{NC:</span>}',
                                        'userId': self.username, 'session': self.session_id, 'iddb': '2',
                                        'level[0]': 'Full', 'level[1]': 'Retro'})
@@ -71,6 +74,6 @@ class OPACWrapper(object):
             books = map(lambda i: i['SHOTFORM']['content']['entry'], XmlListConfig(root)[0]) if not size == '0' else []
 
             if fake_len:
-                books = list((list(books)[0],))
+                books = [list(books)[0]]
 
             return size, list(books)

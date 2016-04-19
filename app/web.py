@@ -17,7 +17,8 @@ def jsonify(data):
 def index():
     author = request.args.get('author') or 'Smith'
     amount = request.args.get('amount') or '10'
-    amount, books = opac.get_book_list_by_author(author, amount)
+    offset = request.args.get('offset') or '0'
+    amount, books = opac.get_book_list_by_author(author, amount, offset)
 
     return jsonify({'amount': amount, 'books': books})
 

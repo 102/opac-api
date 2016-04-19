@@ -1,5 +1,6 @@
 import unittest
 from opacwrapper import OPACWrapper
+from web import app
 
 opac = OPACWrapper()
 
@@ -24,6 +25,16 @@ class TestOPACWrapper(unittest.TestCase):
     def test_one_book(self):
         total, books = opac.get_book_list_by_author('Пушкин', length=1)
         self.assertEqual(len(books), 1)
+
+    def test_offset_order(self):
+        total1, books1 = opac.get_book_list_by_author('Smith', length=7, offset=0)
+        total2, books2 = opac.get_book_list_by_author('Smith', length=7, offset=3)
+        self.assertEqual(books1[3:], books2[:4])
+
+    def test_web(self):
+        with app.test_client() as c:
+            resp = c.get('/?author=Smith&length=1&offset=1')
+            self.assertGreater(len(resp.data), 0)
 
 if __name__ == '__main__':
     unittest.main()
