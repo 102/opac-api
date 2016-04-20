@@ -15,11 +15,12 @@ def jsonify(data):
 
 @app.route('/')
 def index():
-    query_type = request.args.get('type') or 'au'
-    query = request.args.get('query') or 'Smith'
+    author = 'au', request.args.get('author')
+    title = 'ti', request.args.get('title')
     amount = request.args.get('amount') or '10'
     offset = request.args.get('offset') or '0'
-    amount, books = opac.get_book_list(query, amount, offset, query_type=query_type)
+
+    amount, books = opac.get_book_list(dict((author, title)), length=amount, offset=offset)
 
     return jsonify({'amount': amount, 'books': books})
 

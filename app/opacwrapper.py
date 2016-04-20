@@ -44,12 +44,11 @@ class OPACWrapper(object):
                 if not line.find('numsean') == -1:
                     self.session_id = re.findall(r'"([^"]*)"', line)[0]
 
-    def get_book_list(self, query, length=DEFAULT_LENGTH, offset=0, query_type='AU'):
+    def get_book_list(self, query_map, length=DEFAULT_LENGTH, offset=0):
         """
-        :param query: content of the query to be searched
+        :param query_map: content of the query to be searched
         :param length: maximum length of returned books list
         :param offset: books offset length
-        :param query_type: type of query: 'AU' -- author, 'TI' -- title
         :return: length, books: tuple, where first element is total amount of books, which can be found with this query
                                              second element is list of books
         """
@@ -57,12 +56,16 @@ class OPACWrapper(object):
         if length == 1 or length == '1':
             fake_len, length = True, 2
 
+        def generate_query(m):
+            m = filter(lambda x: x[1] is not None, m.items())
+            return ' AND '.join(reduce(lambda acc, cur: acc.append('({0} {1})'.format(*cur)) or acc, m, []))
+
         data = urllib.parse.urlencode({'_errorXsl': '/opacg/html/common/xsl/error.xsl',
                                        '_wait:6M': '_xsl:/opacg/html/search/xsl/search_results.xsl',
                                        '_version': '2.5.0', '_service': 'STORAGE:opacfindd:FindView',
                                        'outformList[0]/outform': 'SHOTFORM', 'outformList[1]/outform': 'LINEORD',
                                        'length': length, 'start': offset, 'level[0]': 'Full', 'level[1]': 'Retro',
-                                       'query/body': '({0} {1})'.format(query_type, query),
+                                       'query/body': generate_query(query_map),
                                        'query/open': "{NC:<span class='red_text'>}", 'query/close': '{NC:</span>}',
                                        'userId': self.username, 'session': self.session_id, 'iddb': '2'})
         url = self.OPAC_DIRECT_URL
@@ -78,10 +81,3 @@ class OPACWrapper(object):
                 books = [list(books)[0]]
 
             return size, list(books)
-
-    def get_book_list_by_author(self, query, length=DEFAULT_LENGTH, offset=0):
-        return self.get_book_list(query=query, length=length, offset=offset, query_type='AU')
-
-    def get_book_list_by_title(self, query, length=DEFAULT_LENGTH, offset=0):
-        return self.get_book_list(query=query, length=length, offset=offset, query_type='TI')
-
