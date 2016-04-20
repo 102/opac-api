@@ -1,8 +1,15 @@
 import unittest
 from opacwrapper import OPACWrapper
 from web import app
+import json
 
 opac = OPACWrapper()
+
+
+def parse_response(resp):
+    response = resp.data.decode('UTF-8')
+    parsed = json.loads(response)
+    return parsed
 
 
 class TestOPACWrapper(unittest.TestCase):
@@ -31,10 +38,24 @@ class TestOPACWrapper(unittest.TestCase):
         total2, books2 = opac.get_book_list_by_author('Smith', length=7, offset=3)
         self.assertEqual(books1[3:], books2[:4])
 
+    def test_request_with_title(self):
+        total, books = opac.get_book_list_by_title('Smith')
+        self.assertGreater(len(books), 0)
+
+
+class TestWebServer(unittest.TestCase):
     def test_web(self):
         with app.test_client() as c:
-            resp = c.get('/?author=Smith&length=1&offset=1')
+            resp = c.get('/?query=Smith&amount=1&offset=1')
+            self.assertEqual(len(parse_response(resp)['books']), 1)
+
+    def test_web_author_query(self):
+        with app.test_client() as c:
+            resp = c.get('/?query=Smith&amount=1&type=TI')
+            total, books = opac.get_book_list_by_title('Smith', length=1)
             self.assertGreater(len(resp.data), 0)
+            self.assertEqual(total, parse_response(resp)['amount'])
+            self.assertEqual(books, parse_response(resp)['books'])
 
 if __name__ == '__main__':
     unittest.main()

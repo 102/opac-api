@@ -44,11 +44,12 @@ class OPACWrapper(object):
                 if not line.find('numsean') == -1:
                     self.session_id = re.findall(r'"([^"]*)"', line)[0]
 
-    def get_book_list_by_author(self, author_name, length=DEFAULT_LENGTH, offset=0):
+    def get_book_list(self, query, length=DEFAULT_LENGTH, offset=0, query_type='AU'):
         """
-        :param author_name: name of the author to be searched
+        :param query: content of the query to be searched
         :param length: maximum length of returned books list
         :param offset: books offset length
+        :param query_type: type of query: 'AU' -- author, 'TI' -- title
         :return: length, books: tuple, where first element is total amount of books, which can be found with this query
                                              second element is list of books
         """
@@ -60,10 +61,10 @@ class OPACWrapper(object):
                                        '_wait:6M': '_xsl:/opacg/html/search/xsl/search_results.xsl',
                                        '_version': '2.5.0', '_service': 'STORAGE:opacfindd:FindView',
                                        'outformList[0]/outform': 'SHOTFORM', 'outformList[1]/outform': 'LINEORD',
-                                       'length': length, 'start': offset, 'query/body': '(AU {0})'.format(author_name),
+                                       'length': length, 'start': offset, 'level[0]': 'Full', 'level[1]': 'Retro',
+                                       'query/body': '({0} {1})'.format(query_type, query),
                                        'query/open': "{NC:<span class='red_text'>}", 'query/close': '{NC:</span>}',
-                                       'userId': self.username, 'session': self.session_id, 'iddb': '2',
-                                       'level[0]': 'Full', 'level[1]': 'Retro'})
+                                       'userId': self.username, 'session': self.session_id, 'iddb': '2'})
         url = self.OPAC_DIRECT_URL
         with urllib.request.urlopen(url, data=data.encode('UTF-8')) as f:
             response = f.read().decode('utf-8')
@@ -77,3 +78,10 @@ class OPACWrapper(object):
                 books = [list(books)[0]]
 
             return size, list(books)
+
+    def get_book_list_by_author(self, query, length=DEFAULT_LENGTH, offset=0):
+        return self.get_book_list(query=query, length=length, offset=offset, query_type='AU')
+
+    def get_book_list_by_title(self, query, length=DEFAULT_LENGTH, offset=0):
+        return self.get_book_list(query=query, length=length, offset=offset, query_type='TI')
+
