@@ -22,7 +22,11 @@ def index():
 
     amount, books = opac.get_book_list(dict((author, title)), length=amount, offset=offset)
 
-    return jsonify({'amount_of_books_for_query': amount, 'amount_of_books_in_response': len(books), 'books': books})
+    response = {'amount_of_books_for_query': amount, 'amount_of_books_in_response': len(books), 'books': books}
+    if not offset == '0':
+        response['offset'] = offset
+
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True)
