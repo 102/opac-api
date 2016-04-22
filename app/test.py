@@ -54,7 +54,7 @@ class TestWebServer(unittest.TestCase):
             resp = c.get('/?title=Золотая+рыбка&amount=5&type=TI')
             total, books = opac.get_book_list({'ti': 'Золотая рыбка'}, length=5)
             self.assertGreater(len(resp.data), 0)
-            self.assertEqual(total, parse_response(resp)['amount'])
+            self.assertEqual(total, parse_response(resp)['amount_of_books_for_query'])
             self.assertEqual(books, parse_response(resp)['books'])
 
     def test_web_author_title_query(self):
