@@ -1,6 +1,7 @@
 from flask import Flask, request, make_response, send_from_directory
 from opacwrapper import OPACWrapper
 from json import dumps
+from template import template
 
 app = Flask(__name__)
 opac = OPACWrapper()
@@ -15,8 +16,7 @@ def jsonify(data):
 
 @app.route('/')
 def index():
-    response = send_from_directory('static', 'index.html')
-    return response
+    return template
 
 
 @app.route('/api')

@@ -1,3 +1,4 @@
+template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +64,7 @@
                 $('.response-data .amount-in-response').text(response.amount_of_books_in_response);
                 $('.books-list ol').html(null);
                 response.books.forEach(function (book) {
-                    $('.books-list ol').append(`<li>${book}</li>`);
+                    $('.books-list ol').append('<li>' + book + '</li>');
                 })
             })
         })
@@ -71,3 +72,4 @@
 </script>
 </body>
 </html>
+"""
