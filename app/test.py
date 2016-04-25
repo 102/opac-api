@@ -46,12 +46,12 @@ class TestOPACWrapper(unittest.TestCase):
 class TestWebServer(unittest.TestCase):
     def test_web_author_query(self):
         with app.test_client() as c:
-            resp = c.get('/?author=Smith&amount=3&offset=1')
+            resp = c.get('/api?author=Smith&amount=3&offset=1')
             self.assertEqual(len(parse_response(resp)['books']), 3)
 
     def test_web_title_query(self):
         with app.test_client() as c:
-            resp = c.get('/?title=Золотая+рыбка&amount=5&type=TI')
+            resp = c.get('/api?title=Золотая+рыбка&amount=5&type=TI')
             total, books = opac.get_book_list({'ti': 'Золотая рыбка'}, length=5)
             self.assertGreater(len(resp.data), 0)
             self.assertEqual(total, parse_response(resp)['amount_of_books_for_query'])
@@ -59,7 +59,7 @@ class TestWebServer(unittest.TestCase):
 
     def test_web_author_title_query(self):
         with app.test_client() as c:
-            resp = c.get('/?title=Руслан+и+людмила&author=Пушкин&amount=4')
+            resp = c.get('/api?title=Руслан+и+людмила&author=Пушкин&amount=4')
             self.assertGreater(len(resp.data), 0)
             self.assertEqual(4, len(parse_response(resp)['books']))
 

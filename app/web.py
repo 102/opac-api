@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, send_from_directory
 from opacwrapper import OPACWrapper
 from json import dumps
 
@@ -15,6 +15,12 @@ def jsonify(data):
 
 @app.route('/')
 def index():
+    response = send_from_directory('static', 'index.html')
+    return response
+
+
+@app.route('/api')
+def api():
     author = 'au', request.args.get('author')
     title = 'ti', request.args.get('title')
     amount = request.args.get('amount') or '10'

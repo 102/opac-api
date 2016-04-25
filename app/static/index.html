@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OPAC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <form>
+        <input type="text" class="author" placeholder="author" data-name="author">
+        <input type="text" class="title" placeholder="title" data-name="title">
+        <input type="number" class="amount" min="0" placeholder="amount" data-name="amount">
+        <input type="number" class="offset" min="0" placeholder="offset" data-name="offset">
+        <button class="search">search</button>
+    </form>
+    <div class="books-list">
+        <div class="response-data">
+            Total books for query: <span class="total"></span>,
+            books in response: <span class="amount-in-response"></span>
+        </div>
+        <ul></ul>
+    </div>
+</div>
+<script type="text/javascript">
+    (function () {
+        $('.search').click(function (e) {
+            e.preventDefault();
+            var params = {};
+            $('input').each(function () {
+                input = $(this);
+                if (input.val()) {
+                    params[input.data('name')] = input.val()
+                }
+            });
+
+            $.get('api?' + $.param(params), function (response) {
+                $('.response-data .total').text(response.amount_of_books_for_query);
+                $('.response-data .amount-in-response').text(response.amount_of_books_in_response);
+                $('.books-list ul').html(null);
+                response.books.forEach(function (book) {
+                    $('.books-list ul').append(`<li>${book}</li>`);
+                })
+            })
+        })
+    })()
+</script>
+</body>
+</html>
