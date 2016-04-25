@@ -52,10 +52,6 @@ class OPACWrapper(object):
         :return: length, books: tuple, where first element is total amount of books, which can be found with this query
                                              second element is list of books
         """
-        fake_len = False
-        if length == 1 or length == '1':
-            fake_len, length = True, 2
-
         def generate_query(m):
             m = filter(lambda x: x[1] is not None, m.items())
             return ' AND '.join(reduce(lambda acc, cur: acc.append('({0} {1})'.format(*cur)) or acc, m, []))
@@ -75,9 +71,10 @@ class OPACWrapper(object):
             root = tree.getroot()
             size = reduce(lambda a, b: a + (b[1] if b[0] == 'size' else ''), root.items(), '')
 
-            books = map(lambda i: i['SHOTFORM']['content']['entry'], XmlListConfig(root)[0]) if not size == '0' else []
-
-            if fake_len:
-                books = [list(books)[0]]
+            if int(size) == 1 or int(length) == 1:
+                books = (XmlListConfig(root)[0]['entry']['SHOTFORM']['content']['entry'],)
+            else:
+                books = map(lambda i: i['SHOTFORM']['content']['entry'],
+                            XmlListConfig(root)[0]) if not size == '0' else []
 
             return size, list(books)
