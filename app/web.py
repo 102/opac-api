@@ -23,6 +23,8 @@ def index():
 def api():
     author = 'au', request.args.get('author')
     title = 'ti', request.args.get('title')
+    area = 'sh', request.args.get('area')
+    all_fields = 'ft', request.args.get('allFields')
     amount = request.args.get('amount') or '10'
     offset = request.args.get('offset') or '0'
 
