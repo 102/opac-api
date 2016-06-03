@@ -52,9 +52,13 @@ class OPACWrapper(object):
         :return: length, books: tuple, where first element is total amount of books, which can be found with this query
                                              second element is list of books
         """
+        def escape_query(query):
+            return query.replace("'", " ")
+
         def generate_query(m):
             m = filter(lambda x: x[1] is not None, m.items())
-            return ' AND '.join(reduce(lambda acc, cur: acc.append('({0} {1})'.format(*cur)) or acc, m, []))
+            unescaped_query = ' AND '.join(reduce(lambda acc, cur: acc.append('({0} {1})'.format(*cur)) or acc, m, []))
+            return escape_query(unescaped_query)
 
         data = urllib.parse.urlencode({'_errorXsl': '/opacg/html/common/xsl/error.xsl',
                                        '_wait:6M': '_xsl:/opacg/html/search/xsl/search_results.xsl',
@@ -70,6 +74,9 @@ class OPACWrapper(object):
             tree = ET.ElementTree(ET.fromstring(response))
             root = tree.getroot()
             size = reduce(lambda a, b: a + (b[1] if b[0] == 'size' else ''), root.items(), '')
+
+            if size == '':
+                return 0, []
 
             if int(size) == 1 or int(length) == 1:
                 books = (XmlListConfig(root)[0]['entry']['SHOTFORM']['content']['entry'],)
